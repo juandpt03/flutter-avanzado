@@ -21,7 +21,7 @@ class ExchangeAPI {
 
       if (response.statusCode == 200) {
         final cryptos = Cryptos.fromJson(response.data);
-        return Right(cryptos.cryptos);
+        return Either.right(cryptos.cryptos);
       }
 
       if (response.statusCode == 404) {
@@ -43,7 +43,7 @@ class ExchangeAPI {
         failure = HttpRequestFailure.local;
       }
 
-      return Left(failure);
+      return Either.left(failure);
     }
   }
 }

@@ -33,12 +33,13 @@ class HomeView extends StatelessWidget {
               itemCount: cryptos.length,
               itemBuilder: (context, index) {
                 final crypto = cryptos[index];
+
                 return ListTile(
                   title: Text(crypto.name),
                   subtitle: Text(crypto.symbol),
                   trailing: Text(
                     NumberFormat.simpleCurrency()
-                        .format(double.parse(crypto.priceUsd)),
+                        .format(double.tryParse(crypto.priceUsd)),
                   ),
                 );
               },

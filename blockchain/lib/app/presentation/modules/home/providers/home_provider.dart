@@ -19,15 +19,18 @@ class HomeProvider extends ChangeNotifier {
   }
 
   Future<void> _init() async {
-    if (state is! HomeStateLoading) {
-      state = HomeState.loading();
-    }
+    state.maybeWhen(
+      loading: () {},
+      orElse: () {
+        state = HomeState.loading();
+      },
+    );
 
     final response = await exchangeRepository.getPrices();
 
     state = response.when(
-      left: (error) => HomeStateFailed(message: error.name),
-      right: (cryptos) => HomeStateSuccess(cryptos: cryptos),
+      left: (error) => HomeState.failed(message: error.name),
+      right: (cryptos) => HomeState.success(cryptos: cryptos),
     );
   }
 }

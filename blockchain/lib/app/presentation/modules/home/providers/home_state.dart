@@ -5,8 +5,9 @@ import '../../../../domain/models/crypto/crypto.dart';
 part 'home_state.freezed.dart';
 
 @freezed
-class HomeState with _$HomeState {
-  factory HomeState.loading() = HomeStateLoading;
-  factory HomeState.failed({required String message}) = HomeStateFailed;
-  factory HomeState.success({required List<Crypto> cryptos}) = HomeStateSuccess;
+sealed class HomeState with _$HomeState {
+  factory HomeState.loading() = _HomeStateLoading;
+  factory HomeState.failed({required String message}) = _HomeStateFailed;
+  factory HomeState.success({required List<Crypto> cryptos}) =
+      _HomeStateSuccess;
 }
