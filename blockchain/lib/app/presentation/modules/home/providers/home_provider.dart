@@ -1,13 +1,18 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../../domain/repositories/exchange_repository.dart';
+import '../../../../domain/repositories/ws_repository.dart';
 import 'home_state.dart';
 
 class HomeProvider extends ChangeNotifier {
   final ExchangeRepository exchangeRepository;
+  final WsRepository wsRepository;
 
-  HomeState _state = HomeState.loading();
-  HomeProvider({required this.exchangeRepository}) {
+  HomeState _state = const HomeState.loading();
+  HomeProvider({
+    required this.exchangeRepository,
+    required this.wsRepository,
+  }) {
     _init();
   }
 
@@ -22,15 +27,25 @@ class HomeProvider extends ChangeNotifier {
     state.maybeWhen(
       loading: () {},
       orElse: () {
-        state = HomeState.loading();
+        state = const HomeState.loading();
       },
     );
 
     final response = await exchangeRepository.getPrices();
 
     state = response.when(
-      left: (error) => HomeState.failed(message: error.name),
+      left: (error) => HomeState.failed(error: error),
       right: (cryptos) => HomeState.success(cryptos: cryptos),
     );
+  }
+
+  Future<bool> startPricesListening() async {
+    final response = await wsRepository.connect();
+
+    return response;
+  }
+
+  Future<void> disconnect() async {
+    await wsRepository.disconnect();
   }
 }

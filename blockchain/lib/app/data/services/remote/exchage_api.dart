@@ -16,7 +16,7 @@ class ExchangeAPI {
       final response = await client.get('https://api.coincap.io/v2/assets');
 
       if (response.statusCode == null) {
-        throw HttpRequestFailure.badRequest;
+        throw const HttpRequestFailure.badRequest();
       }
 
       if (response.statusCode == 200) {
@@ -25,22 +25,22 @@ class ExchangeAPI {
       }
 
       if (response.statusCode == 404) {
-        throw HttpRequestFailure.notFound;
+        throw const HttpRequestFailure.notFound();
       }
 
       if (response.statusCode! >= 500) {
-        throw HttpRequestFailure.server;
+        throw const HttpRequestFailure.server();
       }
 
-      throw HttpRequestFailure.local;
+      throw const HttpRequestFailure.local();
     } catch (e) {
       late HttpRequestFailure failure;
       if (e is HttpRequestFailure) {
         failure = e;
       } else if (e is DioException || e is SocketException) {
-        failure = HttpRequestFailure.network;
+        failure = const HttpRequestFailure.network();
       } else {
-        failure = HttpRequestFailure.local;
+        failure = const HttpRequestFailure.local();
       }
 
       return Either.left(failure);

@@ -12,6 +12,7 @@ class HomeView extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => HomeProvider(
         exchangeRepository: context.read(),
+        wsRepository: context.read(),
       ),
       builder: (context, _) {
         final HomeProvider homeProvider = context.watch();
@@ -24,12 +25,29 @@ class HomeView extends StatelessWidget {
             loading: () => const Center(
               child: CircularProgressIndicator(),
             ),
-            failed: (message) {
-              return Center(
-                child: Text(message),
+            failed: (error) {
+              return error.when(
+                network: () => const Center(
+                  child: Text('Network error'),
+                ),
+                notFound: () => const Center(
+                  child: Text('Not found'),
+                ),
+                server: () => const Center(
+                  child: Text('Server error'),
+                ),
+                unauthorized: () => const Center(
+                  child: Text('Unauthorized'),
+                ),
+                badRequest: () => const Center(
+                  child: Text('Bad request'),
+                ),
+                local: () => const Center(
+                  child: Text('Local error'),
+                ),
               );
             },
-            success: (cryptos) => ListView.builder(
+            success: (cryptos, _) => ListView.builder(
               itemCount: cryptos.length,
               itemBuilder: (context, index) {
                 final crypto = cryptos[index];
