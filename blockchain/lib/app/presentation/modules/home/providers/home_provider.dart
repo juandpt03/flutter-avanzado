@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
+import '../../../../domain/models/ws_status/ws_status.dart';
 import '../../../../domain/repositories/exchange_repository.dart';
 import '../../../../domain/repositories/ws_repository.dart';
 import 'home_state.dart';
@@ -9,14 +10,15 @@ import 'home_state.dart';
 class HomeProvider extends ChangeNotifier {
   final ExchangeRepository exchangeRepository;
   final WsRepository wsRepository;
-  StreamSubscription<Map<String, String>>? _subscription;
+  StreamSubscription<Map<String, String>>? _priceSubscription;
+  StreamSubscription<WsStatus>? _wsStatusSubscription;
 
   HomeState _state = const HomeState.loading();
   HomeProvider({
     required this.exchangeRepository,
     required this.wsRepository,
   }) {
-    _init();
+    init();
   }
 
   HomeState get state => _state;
@@ -26,7 +28,7 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _init() async {
+  Future<void> init() async {
     state.maybeWhen(
       loading: () {},
       orElse: () {
@@ -66,8 +68,9 @@ class HomeProvider extends ChangeNotifier {
   }
 
   Future<void> _onPricesChanged() async {
-    _subscription?.cancel();
-    _subscription = wsRepository.onPricesChanged.stream.listen(
+    _priceSubscription?.cancel();
+    _wsStatusSubscription?.cancel();
+    _priceSubscription = wsRepository.onPricesChanged.stream.listen(
       (changes) {
         state.mapOrNull(
           success: (state) {
@@ -87,11 +90,21 @@ class HomeProvider extends ChangeNotifier {
         );
       },
     );
+
+    _wsStatusSubscription = wsRepository.wsStatus.stream.listen(
+      (status) {
+        state.mapOrNull(
+          success: (state) {
+            this.state = state.copyWith(wsStatus: status);
+          },
+        );
+      },
+    );
   }
 
   @override
   void dispose() {
-    _subscription?.cancel();
+    _priceSubscription?.cancel();
     super.dispose();
   }
 }

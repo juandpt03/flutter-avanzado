@@ -20,11 +20,16 @@ class HomeView extends StatelessWidget {
         final HomeProvider homeProvider = context.watch();
 
         return Scaffold(
-          appBar: const HomeAppbar(),
-          body: homeProvider.state.map<Widget>(
-            loading: (_) => const Center(child: CircularProgressIndicator()),
-            failed: (_) => const HomeError(),
-            success: (_) => const HomeLoaded(),
+          body: CustomScrollView(
+            slivers: [
+              const HomeSliverAppbar(),
+              homeProvider.state.map<Widget>(
+                loading: (_) => const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator())),
+                failed: (_) => const HomeError(),
+                success: (_) => const HomeLoaded(),
+              ),
+            ],
           ),
         );
       },
